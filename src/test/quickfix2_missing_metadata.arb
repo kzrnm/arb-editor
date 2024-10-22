@@ -1,0 +1,4 @@
+{
+	"@@locale": "en",
+	"helloAndWelcome2": "Welcome {firstName}!"
+}

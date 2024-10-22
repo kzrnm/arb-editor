@@ -101,6 +101,11 @@ suite('Extension Test Suite', async () => {
 		await testFixAgainstGolden('quickfix2_spaces.arb', getPlaceholder, 'quickfix2_spaces.golden');
 	});
 
+	test("Test quickfix for missing Metadata and placeholder", async () => {
+		await updateConfiguration([DiagnosticCode.metadataForMissingKey]);
+		await testFixAgainstGolden('quickfix2_missing_metadata.arb', getPlaceholder, 'quickfix2_missing_metadata.golden');
+	});
+
 	test("Test finding unescaped regions", async () => {
 		await updateConfiguration(null);
 		assert.deepEqual(getUnescapedRegions("Test"), [[0, 4]]);

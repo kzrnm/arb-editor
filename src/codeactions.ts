@@ -63,12 +63,13 @@ export class CodeActions implements vscode.CodeActionProvider {
 		while (!(parent instanceof MessageEntry)) {
 			parent = parent?.parent;
 		}
-		const fix = new vscode.CodeAction(`Add metadata for placeholder '${placeholder.value}'`, vscode.CodeActionKind.QuickFix);
-		fix.edit = new vscode.WorkspaceEdit();
 
 		const parentKey = (parent as MessageEntry).key;
 		const metadataBlock = this.messageList?.metadataEntries.find((entry) => entry.key.value === '@' + parentKey.value);
 		if (metadataBlock) {
+			const fix = new vscode.CodeAction(`Add metadata for placeholder '${placeholder.value}'`, vscode.CodeActionKind.QuickFix);
+			fix.edit = new vscode.WorkspaceEdit();
+
 			const metadata = metadataBlock.message as Metadata;
 			if (metadata.placeholders.length > 0) {
 				const lastPlaceholderEnd = metadata.placeholders[metadata.placeholders.length - 1].objectEnd;
@@ -89,7 +90,12 @@ export class CodeActions implements vscode.CodeActionProvider {
 			}
 			return fix;
 		} else {
-			// TODO(mosuem): In this case, there is no metadata block yet. This could be handled by first running the fix for that, and then retrying this.
+			const fix = new vscode.CodeAction(`Add metadata for key '${parentKey.value}' with placeholder '${placeholder.value}'`, vscode.CodeActionKind.QuickFix);
+			fix.edit = new vscode.WorkspaceEdit();
+
+			const insertable = `\n${this.messageList!.getIndent(2)}"placeholders": {\n${this.messageList!.getIndent(3)}"${placeholder.value}": {}\n${this.messageList!.getIndent(2)}}\n${this.messageList!.getIndent()}`;
+			fix.edit.insert(document.uri, document.positionAt(parentKey.endOfMessage ?? 0), `,\n${this.messageList?.getIndent()}"@${parentKey.value}": {${insertable}}`);
+			return fix;
 		}
 	}
 }
